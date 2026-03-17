@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RSVP — Ruth's 40th</title>
+<link href="https://fonts.googleapis.com/css2?family=Poiret+One&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Raleway:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #0D0D0D;
+    --black-warm: #1A1610;
+    --gold: #D4AF37;
+    --gold-light: #E8D48B;
+    --gold-dim: #9E8429;
+    --gold-glow: rgba(212,175,55,0.12);
+    --cream: #F5EDDA;
+    --cream-dim: #C8BEAB;
+    --white: #FFF9EE;
+    --charcoal: #2A2520;
+    --error: #C44D3F;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Raleway', sans-serif;
+    background: var(--black);
+    color: var(--cream);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── Art Deco background pattern ── */
+  .deco-bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .deco-bg::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(212,175,55,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse at 50% 100%, rgba(212,175,55,0.05) 0%, transparent 50%);
+  }
+
+  /* Sunburst lines */
+  .sunburst {
+    position: absolute;
+    top: -20%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 800px;
+    height: 800px;
+    opacity: 0.04;
+    background: repeating-conic-gradient(
+      var(--gold) 0deg 1deg,
+      transparent 1deg 10deg
+    );
+    border-radius: 50%;
+  }
+
+  /* Geometric corner accents */
+  .corner-deco {
+    position: fixed;
+    width: 120px;
+    height: 120px;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.15;
+  }
+  .corner-deco.tl { top: 0; left: 0; }
+  .corner-deco.br { bottom: 0; right: 0; transform: rotate(180deg); }
+  .corner-deco svg { width: 100%; height: 100%; }
+
+  /* Noise texture overlay */
+  .noise {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.35;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+    background-size: 128px;
+  }
+
+  main {
+    position: relative;
+    z-index: 1;
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 3.5rem 1.5rem 5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* ── Gold divider line ── */
+  .gold-rule {
+    width: 60px;
+    height: 1px;
+    background: var(--gold);
+    margin: 0 auto;
+    position: relative;
+  }
+  .gold-rule::before {
+    content: '◆';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--gold);
+    font-size: 10px;
+    background: var(--black);
+    padding: 0 10px;
+  }
+
+  /* ── Header ── */
+  .header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+    opacity: 0;
+    animation: fadeUp 1s ease forwards 0.2s;
+  }
+
+  .overline {
+    font-family: 'Raleway', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1rem;
+  }
+
+  h1 {
+    font-family: 'Poiret One', cursive;
+    font-size: 3.8rem;
+    font-weight: 400;
+    color: var(--cream);
+    line-height: 1;
+    letter-spacing: 0.04em;
+    margin-bottom: 0.15rem;
+  }
+
+  .age {
+    font-family: 'Poiret One', cursive;
+    font-size: 6rem;
+    font-weight: 400;
+    color: var(--gold);
+    line-height: 1;
+    letter-spacing: 0.02em;
+    text-shadow: 0 0 40px rgba(212,175,55,0.25);
+  }
+
+  .tagline {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.15rem;
+    font-style: italic;
+    color: var(--cream-dim);
+    margin-top: 1rem;
+    letter-spacing: 0.02em;
+  }
+
+  /* ── Event details ── */
+  .details {
+    text-align: center;
+    margin: 2rem 0 2.5rem;
+    opacity: 0;
+    animation: fadeUp 1s ease forwards 0.4s;
+  }
+
+  .detail-line {
+    font-family: 'Raleway', sans-serif;
+    font-size: 0.78rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--cream-dim);
+    margin-bottom: 0.5rem;
+    font-weight: 400;
+  }
+
+  .detail-line strong {
+    color: var(--cream);
+    font-weight: 500;
+  }
+
+  /* ── Card ── */
+  .card {
+    width: 100%;
+    background: var(--charcoal);
+    border: 1px solid rgba(212,175,55,0.15);
+    border-radius: 2px;
+    padding: 2.5rem 2rem;
+    position: relative;
+    opacity: 0;
+    animation: fadeUp 1s ease forwards 0.6s;
+  }
+
+  /* Deco corners on card */
+  .card::before, .card::after {
+    content: '';
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    border-color: var(--gold);
+    border-style: solid;
+  }
+  .card::before {
+    top: -1px; left: -1px;
+    border-width: 1px 0 0 1px;
+  }
+  .card::after {
+    bottom: -1px; right: -1px;
+    border-width: 0 1px 1px 0;
+  }
+
+  .card-title {
+    font-family: 'Poiret One', cursive;
+    font-size: 1.6rem;
+    text-align: center;
+    color: var(--gold);
+    letter-spacing: 0.15em;
+    margin-bottom: 1.8rem;
+  }
+
+  /* ── Form ── */
+  .field { margin-bottom: 1.3rem; }
+
+  .field label {
+    display: block;
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--gold-dim);
+    font-weight: 600;
+    margin-bottom: 0.4rem;
+  }
+
+  .field input, .field textarea {
+    width: 100%;
+    padding: 0.7rem 0.9rem;
+    background: var(--black-warm);
+    border: 1px solid rgba(212,175,55,0.2);
+    border-radius: 2px;
+    font-family: 'Raleway', sans-serif;
+    font-size: 0.95rem;
+    color: var(--cream);
+    outline: none;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+
+  .field input:focus, .field textarea:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 2px var(--gold-glow);
+  }
+
+  .field input::placeholder, .field textarea::placeholder {
+    color: rgba(200,190,171,0.35);
+  }
+
+  .field textarea {
+    resize: vertical;
+    min-height: 60px;
+  }
+
+  /* ── Attendance toggle ── */
+  .attendance-toggle {
+    display: flex;
+    gap: 0;
+    margin-bottom: 1.5rem;
+    border: 1px solid rgba(212,175,55,0.2);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .attendance-toggle button {
+    flex: 1;
+    padding: 0.85rem 1rem;
+    background: var(--black-warm);
+    border: none;
+    font-family: 'Raleway', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--cream-dim);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+  }
+
+  .attendance-toggle button + button {
+    border-left: 1px solid rgba(212,175,55,0.15);
+  }
+
+  .attendance-toggle button:hover {
+    color: var(--cream);
+    background: rgba(212,175,55,0.06);
+  }
+
+  .attendance-toggle button.active {
+    background: var(--gold);
+    color: var(--black);
+    font-weight: 600;
+  }
+
+  /* ── Guest fields (dynamic) ── */
+  .guests-section {
+    display: none;
+    margin-bottom: 1.3rem;
+  }
+
+  .guests-section.show { display: block; }
+
+  .guests-section label {
+    display: block;
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--gold-dim);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+
+  .guest-row {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    align-items: center;
+  }
+
+  .guest-row input {
+    flex: 1;
+    padding: 0.6rem 0.9rem;
+    background: var(--black-warm);
+    border: 1px solid rgba(212,175,55,0.2);
+    border-radius: 2px;
+    font-family: 'Raleway', sans-serif;
+    font-size: 0.9rem;
+    color: var(--cream);
+    outline: none;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+
+  .guest-row input:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 2px var(--gold-glow);
+  }
+
+  .guest-row input::placeholder {
+    color: rgba(200,190,171,0.35);
+  }
+
+  .remove-guest {
+    width: 32px;
+    height: 32px;
+    background: none;
+    border: 1px solid rgba(212,175,55,0.15);
+    border-radius: 2px;
+    color: var(--cream-dim);
+    font-size: 1.1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+
+  .remove-guest:hover {
+    border-color: var(--error);
+    color: var(--error);
+  }
+
+  .add-guest-btn {
+    background: none;
+    border: 1px dashed rgba(212,175,55,0.25);
+    border-radius: 2px;
+    padding: 0.55rem;
+    width: 100%;
+    font-family: 'Raleway', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--gold-dim);
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-top: 0.25rem;
+  }
+
+  .add-guest-btn:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+    background: var(--gold-glow);
+  }
+
+  /* ── Submit ── */
+  .submit-btn {
+    width: 100%;
+    padding: 0.95rem;
+    border: none;
+    border-radius: 2px;
+    font-family: 'Raleway', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    cursor: pointer;
+    background: var(--gold);
+    color: var(--black);
+    transition: all 0.3s;
+    margin-top: 0.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .submit-btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+    transform: translateX(-100%);
+    transition: transform 0.5s;
+  }
+
+  .submit-btn:hover::after {
+    transform: translateX(100%);
+  }
+
+  .submit-btn:hover {
+    background: var(--gold-light);
+    box-shadow: 0 0 30px rgba(212,175,55,0.2);
+  }
+
+  .submit-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  /* ── Error ── */
+  .error-msg {
+    display: none;
+    text-align: center;
+    padding: 0.65rem;
+    border: 1px solid rgba(196,77,63,0.3);
+    background: rgba(196,77,63,0.08);
+    border-radius: 2px;
+    color: #E87B6D;
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
+  }
+
+  /* ── Success ── */
+  .success-view {
+    display: none;
+    text-align: center;
+    padding: 1.5rem 0;
+  }
+
+  .success-view .diamond {
+    font-size: 2rem;
+    color: var(--gold);
+    margin-bottom: 1rem;
+    animation: popIn 0.5s cubic-bezier(.34,1.56,.64,1);
+  }
+
+  .success-view h3 {
+    font-family: 'Poiret One', cursive;
+    font-size: 1.6rem;
+    color: var(--cream);
+    letter-spacing: 0.08em;
+    margin-bottom: 0.5rem;
+  }
+
+  .success-view p {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.05rem;
+    font-style: italic;
+    color: var(--cream-dim);
+  }
+
+  /* ── Dress code hint ── */
+  .dress-hint {
+    text-align: center;
+    margin-top: 2.5rem;
+    opacity: 0;
+    animation: fadeUp 1s ease forwards 0.8s;
+  }
+
+  .dress-hint p {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.95rem;
+    font-style: italic;
+    color: var(--cream-dim);
+    line-height: 1.6;
+  }
+
+  .dress-hint .label {
+    font-family: 'Raleway', sans-serif;
+    font-size: 0.65rem;
+    font-style: normal;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--gold-dim);
+    display: block;
+    margin-bottom: 0.4rem;
+  }
+
+  /* ── Animations ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes popIn {
+    from { transform: scale(0) rotate(45deg); }
+    to   { transform: scale(1) rotate(0deg); }
+  }
+
+  @media (max-width: 480px) {
+    h1 { font-size: 2.8rem; }
+    .age { font-size: 4.5rem; }
+    main { padding: 2.5rem 1rem 4rem; }
+    .card { padding: 2rem 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="deco-bg">
+  <div class="sunburst"></div>
+</div>
+<div class="noise"></div>
+
+<!-- Corner accents -->
+<div class="corner-deco tl">
+  <svg viewBox="0 0 120 120" fill="none" stroke="#D4AF37" stroke-width="0.5">
+    <line x1="0" y1="0" x2="80" y2="0"/>
+    <line x1="0" y1="0" x2="0" y2="80"/>
+    <line x1="0" y1="20" x2="40" y2="20"/>
+    <line x1="20" y1="0" x2="20" y2="40"/>
+    <line x1="0" y1="0" x2="50" y2="50" stroke-dasharray="2,4"/>
+  </svg>
+</div>
+<div class="corner-deco br">
+  <svg viewBox="0 0 120 120" fill="none" stroke="#D4AF37" stroke-width="0.5">
+    <line x1="0" y1="0" x2="80" y2="0"/>
+    <line x1="0" y1="0" x2="0" y2="80"/>
+    <line x1="0" y1="20" x2="40" y2="20"/>
+    <line x1="20" y1="0" x2="20" y2="40"/>
+    <line x1="0" y1="0" x2="50" y2="50" stroke-dasharray="2,4"/>
+  </svg>
+</div>
+
+<main>
+  <div class="header">
+    <p class="overline">You Are Cordially Invited</p>
+    <h1>Ruth's</h1>
+    <div class="age">40th</div>
+    <div class="gold-rule" style="margin-top:1.2rem;"></div>
+    <p class="tagline">An afternoon of drinks, good company, and a little 80s glamour</p>
+  </div>
+
+  <div class="details">
+    <p class="detail-line"><strong>Sunday, May 31, 2026</strong></p>
+    <p class="detail-line">2:00 — 5:00 PM</p>
+    <p class="detail-line">6336 Burns Street, Burnaby</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">RSVP</div>
+
+    <div id="formArea">
+      <div id="errorMsg" class="error-msg"></div>
+
+      <div class="field">
+        <label for="name">Your Name</label>
+        <input type="text" id="name" placeholder="Your full name">
+      </div>
+
+      <div class="field">
+        <label>Will You Join Us?</label>
+        <div class="attendance-toggle" id="toggle">
+          <button type="button" data-val="Yes" onclick="pickAttendance(this)">Accept with pleasure</button>
+          <button type="button" data-val="No" onclick="pickAttendance(this)">Regretfully decline</button>
+        </div>
+      </div>
+
+      <div class="guests-section" id="guestsSection">
+        <label>Additional Guests</label>
+        <div id="guestList"></div>
+        <button type="button" class="add-guest-btn" onclick="addGuest()">+ Add a guest</button>
+      </div>
+
+      <button class="submit-btn" id="submitBtn" onclick="submitRsvp()">Confirm RSVP</button>
+    </div>
+
+    <div class="success-view" id="successView">
+      <div class="diamond">◆</div>
+      <h3 id="successTitle">Thank You</h3>
+      <p id="successText"></p>
+    </div>
+  </div>
+
+  <div class="dress-hint">
+    <p>
+      <span class="label">Dress Code</span>
+      Cocktail attire with an 80s twist.<br>
+      Think shoulder pads, statement jewellery,<br>
+      silk blouses, or a bold lip.
+    </p>
+  </div>
+</main>
+
+<script>
+  // ═══════════════════════════════════════════════════════════════
+  //  CONFIG — Replace with your deployed Google Apps Script URL
+  // ═══════════════════════════════════════════════════════════════
+  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwnxHIxY1PoViEZrQbg9Yp36fkB8lUAWek73XnmjeARifOgkRYBu_NDWVe-KuCl6tN9/exec';
+  // ═══════════════════════════════════════════════════════════════
+
+  let attending = '';
+
+  // Pre-select attendance from URL param (from email button)
+  (function() {
+    const params = new URLSearchParams(window.location.search);
+    const val = params.get('attending');
+    if (val === 'Yes' || val === 'No') {
+      const btn = document.querySelector(`[data-val="${val}"]`);
+      if (btn) pickAttendance(btn);
+    }
+  })();
+
+  function pickAttendance(btn) {
+    document.querySelectorAll('#toggle button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    attending = btn.dataset.val;
+
+    const section = document.getElementById('guestsSection');
+    if (attending === 'Yes') {
+      section.classList.add('show');
+      // Add one guest field by default if empty
+      if (document.getElementById('guestList').children.length === 0) {
+        addGuest();
+      }
+    } else {
+      section.classList.remove('show');
+    }
+  }
+
+  function addGuest() {
+    const list = document.getElementById('guestList');
+    const row = document.createElement('div');
+    row.className = 'guest-row';
+
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.placeholder = 'Guest's full name';
+
+    const removeBtn = document.createElement('button');
+    removeBtn.className = 'remove-guest';
+    removeBtn.innerHTML = '×';
+    removeBtn.onclick = function() {
+      row.remove();
+    };
+
+    row.appendChild(input);
+    row.appendChild(removeBtn);
+    list.appendChild(row);
+    input.focus();
+  }
+
+  function showError(msg) {
+    const el = document.getElementById('errorMsg');
+    el.textContent = msg;
+    el.style.display = 'block';
+  }
+
+  async function submitRsvp() {
+    const name = document.getElementById('name').value.trim();
+    const errEl = document.getElementById('errorMsg');
+    errEl.style.display = 'none';
+
+    if (!name) return showError('Please enter your name.');
+    if (!attending) return showError('Please select your attendance.');
+
+    // Collect guest names (non-empty)
+    const guestInputs = document.querySelectorAll('#guestList input');
+    const guests = [];
+    if (attending === 'Yes') {
+      guestInputs.forEach(inp => {
+        const v = inp.value.trim();
+        if (v) guests.push(v);
+      });
+    }
+
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.textContent = 'SENDING…';
+
+    try {
+      await fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, attending, guests })
+      });
+
+      document.getElementById('formArea').style.display = 'none';
+      const sv = document.getElementById('successView');
+      sv.style.display = 'block';
+
+      if (attending === 'Yes') {
+        document.getElementById('successTitle').textContent = 'See You There';
+        const guestText = guests.length > 0
+          ? ` We've noted your ${guests.length} guest${guests.length > 1 ? 's' : ''}.`
+          : '';
+        document.getElementById('successText').textContent =
+          `Champagne will be poured and sparklers will be lit.${guestText}`;
+      } else {
+        document.getElementById('successTitle').textContent = 'We'll Miss You';
+        document.getElementById('successText').textContent =
+          'Thank you for letting us know, ' + name + '.';
+      }
+    } catch (e) {
+      showError('Something went wrong. Please try again.');
+      btn.disabled = false;
+      btn.textContent = 'CONFIRM RSVP';
+    }
+  }
+</script>
+</body>
+</html>
